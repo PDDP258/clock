@@ -1,0 +1,114 @@
+<!-- AI_clock（按键番茄）Android 清单
+     目标设备：M500 音乐播放器（Android 14 定制系统，API 34）
+     注意：applicationId 在 android/app/build.gradle 中配置为 com.aiclock.player
+          （发布前可按需修改；本文件不负责包名） -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 计时期间保持 CPU 唤醒 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- 2026-10-01 震动功能整体移除：flutter_local_notifications 的库清单会
+         自行注入 VIBRATE，这里强制从合并结果里剔除，保证最终 APK 无此权限 -->
+    <uses-permission
+        android:name="android.permission.VIBRATE"
+        tools:node="remove" />
+
+    <!-- 前台服务（Android 9+ 前台服务基础权限） -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <!-- Android 14 (API 34) 起，mediaPlayback 类型前台服务必须单独声明的权限 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
+    <!-- Android 13+ 通知运行时权限（专注 ongoing 通知用） -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- 开机完成广播（US-C01，看板 #41）：开机后检测未完成会话并发恢复引导通知；
+         Android 14 禁止 boot 直接起 mediaPlayback FGS，只能走通知引导 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- V0.5 AI 云端周报解读的唯一网络用途；AI 总开关默认关闭，
+         未开启时零网络请求（ADR-0006） -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- 使用情况访问权限（统计各 App 使用时长）。
+         属签名级权限，普通授予无效，必须引导用户到系统设置页手动开启；
+         tools:ignore 用于压制 lint 的 ProtectedPermissions 警告 -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <application
+        android:label="MikuFocus"
+        android:icon="@mipmap/ic_launcher">
+
+        <!-- 主 Activity：使用本项目 MainActivity（继承 audio_service 的
+             AudioServiceActivity，媒体按键事件接收转发不变；另挂载
+             aiclock/permissions MethodChannel 提供系统设置页跳转） -->
+        <activity
+            android:name="com.aiclock.ai_clock.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:screenOrientation="fullUser"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- audio_service 前台服务：持有 MediaSession、播放静音 keep-alive，
+             从而霸占 M500 侧边实体媒体键（上一曲 88 / 播放暂停 85 / 下一曲 87）。
+             foregroundServiceType="mediaPlayback" 为 Android 14 必填项 -->
+        <service
+            android:name="com.ryanheise.audioservice.AudioService"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+
+        <!-- 媒体按键接收器：把 MEDIA_BUTTON 广播路由给 AudioService。
+             M500 实体键为主板直连的标准媒体键，无需蓝牙 AVRCP 兼容处理 -->
+        <receiver
+            android:name="com.ryanheise.audioservice.MediaButtonReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 通知监听服务（看板 #38）：不读通知内容，仅为「音乐下一首」
+             硬路径获取 MediaSessionManager.getActiveSessions 的调用资格，
+             用户在系统「通知读取权限」设置页手动授权后生效 -->
+        <service
+            android:name=".MusicControlListenerService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!-- 开机恢复引导（US-C01，看板 #41）：检测到未完成会话时发通知，
+             点按回 App 由 Dart 侧时间戳恢复；无会话/未授通知权限时静默 -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+</manifest>

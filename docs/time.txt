@@ -1,0 +1,11 @@
+★ 计时真值来源（引擎层）
+
+- ★ timer_engine.dart — 番茄引擎：墙上时间戳、段累计、暂停/冻结、阶段轮转
+- count_up_timer.dart — 正计时引擎
+- ★ session_record.dart — 会话记录构建（actual/planned/段区间/打点）
+- time_format.dart — 时长格式化 +`isSameLocalDay` （跨天守卫）
+- timer_mode.dart — 模式枚举
+★ 结算与落库（10s 确认）
+
+- ★ focus_controller.dart — 控制器：10s 周期结算、心跳、恢复、暂停/终止
+- ★ app_database.dart — drift 表 +`FocusSessionDao` （upsert / 读侧去重 / 写侧高水位 / 自愈）

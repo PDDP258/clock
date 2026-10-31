@@ -1,0 +1,45 @@
+# 换行符规范（Windows 开发 + 跨平台仓库）
+#
+# 背景：本机 core.autocrlf=true，Windows 上 checkout 会把 LF 转成 CRLF，
+# 导致同一文件在不同机器上反复产生「整文件 diff」。这里在仓库层面固定：
+# 文本文件入库一律 LF，检出时按平台自动转换（Windows → CRLF，其余 → LF）。
+#
+# 二进制资源（背景图 webp、音频 wav、图标 png）必须标 binary，
+# 否则 git 会尝试做行尾转换把字节改坏。
+
+* text=auto eol=lf
+
+# 源码与配置：入库 LF，检出按平台
+*.dart       text eol=lf
+*.kt         text eol=lf
+*.kts        text eol=lf
+*.gradle     text eol=lf
+*.xml        text eol=lf
+*.yaml       text eol=lf
+*.yml        text eol=lf
+*.json       text eol=lf
+*.md         text eol=lf
+*.txt        text eol=lf
+*.html       text eol=lf
+*.js         text eol=lf
+*.css        text eol=lf
+*.properties text eol=lf
+*.sh         text eol=lf eol=lf
+*.bat        text eol=crlf
+
+# 二进制资源：禁止任何转换
+*.webp   binary
+*.wav    binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.ttf    binary
+*.otf    binary
+*.jar    binary
+*.apk    binary
+*.so     binary
+*.dll    binary
+*.exe    binary
+*.zip    binary

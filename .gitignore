@@ -1,0 +1,61 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+# Gradle 构建报告（每次构建都变，与源码无关）
+/android/build/reports/
+/android/build/tmp/
+/android/build/generated/
+/android/.gradle/
+
+# WorkBuddy 工作区（看板 #63 首次入库）
+# memory/ 里的工作日志是真资料，要进版本库；
+# *.dill 是 frontend_server 编译产物（单个 50MB+，共 450MB），
+# 其余 txt/py 是临时探针输出，都不进。
+.workbuddy/*
+!.workbuddy/memory/
+
+# IDE 分享包 / 上传临时目录
+.trae-html-share-packages/
+.uploads/

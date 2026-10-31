@@ -1,0 +1,82 @@
+name: ai_clock
+description: "AI_clock（按键番茄）—— 运行在 M500 音乐播放器上的实体按键番茄钟自律应用。"
+publish_to: "none"
+
+# 0.1.0 = V0.1 骨架版本
+version: 0.2.0+10
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # 状态管理
+  flutter_riverpod: ^2.5.1
+
+  # 媒体按键 / MediaSession 霸占（audio_service 体系三件套）
+  audio_service: ^0.18.15
+  just_audio: ^0.9.40
+  audio_session: ^0.1.21
+
+  # 本地通知（ongoing 通知 + 锁屏 chronometer 走秒）
+  flutter_local_notifications: ^17.2.1
+
+  # 使用情况统计（Android UsageStatsManager 封装）
+  usage_stats: ^1.2.0
+
+  # 本地数据库 drift（SQLite）
+  drift: ^2.18.0
+  sqlite3_flutter_libs: ^0.5.24
+
+  # 路径 / 偏好存储
+  path_provider: ^2.1.3
+  path: ^1.9.0
+  shared_preferences: ^2.2.3
+
+  # 统计图表
+  fl_chart: ^0.68.0
+
+  # 日期格式化
+  intl: ^0.19.0
+  gbk_codec: ^0.4.0
+
+# usage_stats 1.3.1 写死 compileSdkVersion 30，release 构建资源校验缺
+# android:attr/lStar（API 31+）失败；内置源码打补丁（compileSdk 36），
+# 上游修复后可移回托管版本（见 android/build.gradle.kts 说明）。
+dependency_overrides:
+  usage_stats:
+    path: third_party/usage_stats
+  # drift_dev 2.34.0 与 sqlparser 0.44.6 源码不兼容（DartPlaceholder.when
+  # 被移除导致 build_runner 编译失败）；钉回 0.44.5，升级 drift 系时一并复核。
+  sqlparser: 0.44.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+  # drift 代码生成（app_database.g.dart）
+  build_runner: ^2.4.9
+  drift_dev: ^2.18.0
+
+  # 启动图标生成（一次性工具，改图标后跑 dart run flutter_launcher_icons）
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/icon/app_icon.png"
+  adaptive_icon_background: "#F5F7F6"
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+  min_sdk_android: 22
+
+flutter:
+  uses-material-design: true
+  assets:
+    # 静音 keep-alive 音频，见 assets/audio/README.md
+    - assets/audio/
+    # 背景图库（含 manifest.json）；素材与登记表由 tool/miku_bg_prepare.py 生成，
+    # 规则口径见 docs/10-背景图库登记表.md
+    - assets/backgrounds/

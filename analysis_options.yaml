@@ -1,0 +1,20 @@
+# 静态分析配置：flutter_lints 官方推荐规则 + 少量项目自定义
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    # drift / build_runner 生成文件不参与 lint
+    - "**/*.g.dart"
+    - "**/*.mocks.dart"
+    # 内置第三方插件源码（usage_stats 本地补丁版），不 lint 别人的代码
+    - "third_party/**"
+  errors:
+    # 生成文件尚未产出时避免整片爆红（build_runner 之后可移除）
+    unused_import: warning
+
+linter:
+  rules:
+    prefer_single_quotes: true
+    always_declare_return_types: true
+    prefer_final_locals: true
+    unawaited_futures: true
